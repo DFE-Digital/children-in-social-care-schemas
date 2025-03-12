@@ -1,0 +1,707 @@
+{
+    "openapi" : "3.0.3",
+    "info" : {
+        "title" : "DfE CSC API",
+        "description" : "API for the collection of Child Social Care data",
+        "version" : "0.7.0"
+    },
+    "servers" : [
+        {
+            "url" : "https://find-and-use-an-api.education.gov.uk/api",
+            "description" : "Department for Education's Production API URL"
+        }
+    ],
+    "paths" : {
+        "/children_social_care_data/{la_code}/children" : {
+            "post" : {
+                "summary" : "Submit data to the DfE",
+                "description" : "Submit child social care data to the DfE",
+                "requestBody" : {
+                    "content" : {
+                        "application/json" : {
+                            "schema" : {
+                                "$ref" : "#/components/schemas/CSC"
+                            }
+                        }
+                    }
+                },
+                "responses" : {
+                    "200" : {
+                        "description" : "Data received",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/Receipt"
+                                }
+                            }
+                        }
+                    },
+                    "204" : {
+                        "description" : "No content"
+                    },
+                    "400" : {
+                        "description" : "Payload was malformed"
+                    },
+                    "401" : {
+                        "description" : "Unauthorized Access"
+                    },
+                    "403" : {
+                        "description" : "Forbidden Access"
+                    },
+                    "413" : {
+                        "description" : "Too many records"
+                    },
+                    "429" : {
+                        "description" : "Too many requests"
+                    }
+                }
+            },
+            "parameters" : [
+                {
+                  "name": "la_code",
+                  "in": "path",
+                  "description": "3 digit Local Authority Code as known by the DfE",
+                  "required": true,
+                  "schema": {
+                    "type": "integer",
+                    "maximum" : 999
+                  }
+                }
+              ]
+        }
+    },
+    "components" : {
+        "schemas" : {
+            "CSC" : {
+                "type" : "array",
+                "title" : "JSON Schema for CSC Data API",
+                "description": "Array containing individual objects representing the details and social care attributes of the child.",
+                "items" : {
+                    "type" : "object",
+                    "properties" : {
+                        "la_child_id" : {
+                            "type" : "string",
+                            "description" : "Unique child identifier as held by the Local Authority. This is used as the core identifier for a child.",
+                            "pattern" : "^[A-Za-z0-9_-]*$",
+                            "maxLength" : 36
+                        },
+                        "mis_child_id" : {
+                            "type" : "string",
+                            "description" : "Unique child identifier as held by the Supplier. This is not required.",
+                            "pattern" : "^[A-Za-z0-9_-]*$",
+                            "maxLength" : 36
+                        },
+                        "purge" : {
+                            "type" : "boolean",
+                            "description" : "Flag to indicate if this record is to be purged from the system. Default value of False. A purge flag set here will completely remove all data for the child.",
+                            "default" : false
+                        },
+                        "child_details" : {
+                            "type" : "object",
+                            "description" : "Section containing personal details on the child",
+                            "properties" : {
+                                "unique_pupil_number" : {
+                                    "type" : "string",
+                                    "description" : "Unique Pupil Number (UPN) for the child, if available",
+                                    "minLength" : 13,
+                                    "maxLength" : 13
+                                },
+                                "former_unique_pupil_number" : {
+                                    "type" : "string",
+                                    "description" : "A former Unique Pupil Number (UPN) assigned to the child, if different to the current UPN",
+                                    "minLength" : 13,
+                                    "maxLength" : 13
+                                },
+                                "unique_pupil_number_unknown_reason" : {
+                                    "type" : "string",
+                                    "description" : "Optional reason as to why a Unique Pupil Number (UPN) can not be provided for this child, selected from a list of possible codes",
+                                    "maxLength" : 3
+                                },
+                                "first_name" : {
+                                    "type" : "string",
+                                    "description" : "Given First name of the child"
+                                },
+                                "surname" : {
+                                    "type" : "string",
+                                    "description" : "Given Surname of the child"
+                                },
+                                "date_of_birth" : {
+                                    "type" : "string",
+                                    "format" : "date",
+                                    "description" : "Date of birth of the child. If the exact date of birth is not known, record an approximate date of birth based on the child's estimated age at date of referral"
+                                },
+                                "expected_date_of_birth" : {
+                                    "type" : "string",
+                                    "format" : "date",
+                                    "description" : "Expected date of birth (due date) for a child who is unborn at the time of referral"
+                                },
+                                "sex" : {
+                                    "type" : "string",
+                                    "description" : "Sex of the child as recognised in law, selected from a list of possible codes",
+                                    "maxLength" : 1
+                                },
+                                "ethnicity" : {
+                                    "type" : "string",
+                                    "description" : "Ethnicity of the child, selected from a list of possible codes",
+                                    "maxLength" : 4
+                                },
+                                "disabilities" : {
+                                    "type" : "array",
+                                    "description" : "List of disabilities attributed to the child",
+                                    "items" : {
+                                        "type" : "string",
+                                        "description" : "Individual disability attributed with the child, selected from a list of possible codes",
+                                        "maxLength" : 4
+                                    },
+                                    "uniqueItems" : true,
+                                    "maxItems" : 12
+                                },
+                                "postcode" : {
+                                    "type" : "string",
+                                    "description" : "Home Postcode of the child",
+                                    "maxLength" : 8
+                                },
+                                "uasc_flag" : {
+                                    "type" : "boolean",
+                                    "description" : "Flag to indicate if the child is an Unaccompanied Asylum Seeking Child (UASC)"
+                                },
+                                "uasc_end_date" : {
+                                    "type" : "string",
+                                    "description" : "Date when the child ceased to be an Unaccompanied Asylum Seeking Child (UASC). This attribute should be blank if the child has never been a UASC or the child is currently a UASC.",
+                                    "format" : "date"
+                                },
+                                "purge" : {
+                                    "type" : "boolean",
+                                    "description" : "Flag to indicate if child details are to be purged from the system. Default value of False. A purge flag set here will remove all personal details only for the child, however all related social care data will remain. Please use the purge attribute in the parent object to completely remove a child's record",
+                                    "default" : false
+                                }
+                            },
+                            "additionalProperties" : false
+                        },
+                        "health_and_wellbeing" : {
+                            "type" : "object",
+                            "properties" : {
+                                "sdq_assessments" : {
+                                    "type" : "array",
+                                    "items" : {
+                                        "type" : "object",
+                                        "properties" : {
+                                            "date" : {
+                                                "type" : "string",
+                                                "format" : "date"
+                                            },
+                                            "score" : {
+                                                "type" : "integer"
+                                            }
+                                        },
+                                        "additionalProperties" : false
+                                    }
+                                },
+                                "purge" : {
+                                    "type" : "boolean",
+                                    "description" : "Flag to indicate if health and wellbeing details are to be purged from the system. Default value of False. A purge flag set here will remove all health and wellbeing details only for the child, however all other personal and social care data will remain. Please use the purge attribute in the parent object to completely remove a child's record",
+                                    "default" : false
+                                }
+                            },
+                            "additionalProperties" : false
+                        },
+                        "education_health_care_plans" : {
+                            "type" : "array",
+                            "description" : "Details on requests for Education, Health and Care (EHC) plans. The details within this section align closely with the current annual special educational needs survey (person level SEN2 return).",
+                            "items" : {
+                                "type" : "object",
+                                "properties" : {
+                                    "education_health_care_plan_id" : {
+                                        "type" : "string",
+                                        "description" : "Unique ID associated with the Educational, Health and Care plan. This ID should be consistent through all stages of the process, from initial request through to the issued plan.",
+                                        "pattern" : "^[A-Za-z0-9_-]*$",
+                                        "maxLength" : 36
+                                    },
+                                    "request_received_date" : {
+                                        "type" : "string",
+                                        "description" : "Date the request for an EHC needs assessment was received.",
+                                        "format" : "date"
+                                    },
+                                    "request_outcome_date" : {
+                                        "type" : "string",
+                                        "description" : "Date the parent or young person was informed of the decision about whether the local authority agrees to the request for an assessment.",
+                                        "format" : "date"
+                                    },
+                                    "assessment_outcome_date" : {
+                                        "type" : "string",
+                                        "description" : "Either the date on which the final EHC plan was issued, or the date on which the parent or young person was notified of decision not to issue a plan",
+                                        "format" : "date"
+                                    },
+                                    "plan_start_date" : {
+                                        "type" : "string",
+                                        "description" : "Date the child or young person's EHC plan first started.",
+                                        "format" : "date"
+                                    },
+                                    "purge" : {
+                                        "type" : "boolean",
+                                        "description" : "Flag to indicate if this Educational, Health and Care plan is to be purged from the system. Default value of False. A purge flag set here will remove all data related to the specified Educatonal, Health and Care plan. All other personal and social care data will remain. Please use the purge attribute in the parent object to completely remove a child's record including all Education, Health and Care plans",
+                                        "default" : false
+                                    }
+                                },
+                                "required" : [
+                                    "education_health_care_plan_id"
+                                ],
+                                "additionalProperties" : false
+                            }
+                        },
+                        "social_care_episodes" : {
+                            "type" : "array",
+                            "description" : "Details on social care episodes related to the Child. These are often referred to as 'referrals' and/or 'child in need episodes'. A child can have multiple episodes, each containing different elements of support. Each episode ends when the local authority ceases to provide any further support to the child. A new episode is opened when a referral is raised for a child who has previously recieved support but is no longer. Social Care Episodes include details covering both Children in Need (CiN) and Children Looked After (CLA).",
+                            "items" : {
+                                "type" : "object",
+                                "properties" : {
+                                    "social_care_episode_id" : {
+                                        "type" : "string",
+                                        "description" : "Unique identifier for the overall social care episode",
+                                        "pattern" : "^[A-Za-z0-9_-]*$",
+                                        "maxLength" : 36
+                                    },
+                                    "referral_date" : {
+                                        "type" : "string",
+                                        "format" : "date",
+                                        "description" : "Date the child was referred to children's social services"
+                                    },
+                                    "referral_source" : {
+                                        "type" : "string",
+                                        "maxLength" : 2,
+                                        "description" : "Souce of the referral to social services, selected from a list of possible codes"
+                                    },
+                                    "referral_no_further_action_flag" : {
+                                        "type" : "boolean",
+                                        "description" : "Flag indicating whether any further action was taken following the initial referral."
+                                    },
+                                    "closure_date" : {
+                                        "type" : "string",
+                                        "format" : "date",
+                                        "description" : "Date the episode of care ended for this child"
+                                    },
+                                    "closure_reason" : {
+                                        "type" : "string",
+                                        "maxLength" : 3,
+                                        "description" : "Reason the episode of care ended for this child, selected from a list of possible codes"
+                                    },
+                                    "care_worker_details" : {
+                                        "type" : "array",
+                                        "description" : "Details on the social care workers managing this social care episode",
+                                        "items" : {
+                                            "type" : "object",
+                                            "properties" : {
+                                                "worker_id" : {
+                                                    "type" : "string",
+                                                    "description" : "ID of the assigned Social Worker. This should be the Social Work England (SWE) number (formerly HCPC code) for all qualified social workers or an alternative unique ID if this is unavailable.",
+                                                    "pattern" : "^[A-Za-z0-9_-]*$",
+                                                    "maxLength" : 12
+                                                },
+                                                "start_date" : {
+                                                    "type" : "string",
+                                                    "description" : "Date the Social Worker started working with the child",
+                                                    "format" : "date"
+                                                },
+                                                "end_date" : {
+                                                    "type" : "string",
+                                                    "description" : "Date the Social Worker ceased working with the child",
+                                                    "format" : "date"
+                                                }
+                                            },
+                                            "additionalProperties" : false
+                                        }
+                                    },
+                                    "child_and_family_assessments" : {
+                                        "type" : "array",
+                                        "description" : "Details on child and family assessments carried out to assess the needs of a Child referred to social services",
+                                        "items" : {
+                                            "type" : "object",
+                                            "properties" : {
+                                                "child_and_family_assessment_id" : {
+                                                    "type" : "string",
+                                                    "description" : "Unique identifier for the child and family assessment",
+                                                    "pattern" : "^[A-Za-z0-9_-]*$",
+                                                    "maxLength" : 36
+                                                },
+                                                "start_date" : {
+                                                    "type" : "string",
+                                                    "description" : "Date the assessment was started",
+                                                    "format" : "date"
+                                                },
+                                                "authorisation_date" : {
+                                                    "type" : "string",
+                                                    "description" : "Date the assessment was completed and authorised",
+                                                    "format" : "date"
+                                                },
+                                                "factors" : {
+                                                    "type" : "array",
+                                                    "description" : "Array of all factors identified at the end of an assessment. More detailed information on assessment factors can be found within this article: https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/977581/CIN_Additional_guide_on_the_factors_identified_at_the_end_of_assessment.pdf",
+                                                    "items" : {
+                                                        "type" : "string",
+                                                        "maxLength" : 3,
+                                                        "description" : "An individual factor identified at the end of an assessment, selected from a list of possible codes"
+                                                    },
+                                                    "uniqueItems" : true,
+                                                    "maxItems" : 41
+                                                },
+                                                "purge" : {
+                                                    "type" : "boolean",
+                                                    "description" : "Flag to indicate if this child and family assessment is to be purged from the system. Default value of False. A purge flag set here will remove all data related to the specified child and family assessment. All other personal and social care data will remain. Please use the purge attribute in the parent object to completely remove a specific social care episode including all child and family assessments",
+                                                    "default" : false
+                                                }
+                                            },
+                                            "required" : [
+                                                "child_and_family_assessment_id"
+                                            ],
+                                            "additionalProperties" : false
+                                        }
+                                    },
+                                    "child_in_need_plans" : {
+                                        "type" : "array",
+                                        "description" : "Details on child in need plans arranged to support the needs of a Child referred to social services",
+                                        "items" : {
+                                            "type" : "object",
+                                            "properties" : {
+                                                "child_in_need_plan_id" : {
+                                                    "type" : "string",
+                                                    "description" : "Unique identifier for the child in need plan",
+                                                    "pattern" : "^[A-Za-z0-9_-]*$",
+                                                    "maxLength" : 36
+                                                },
+                                                "start_date" : {
+                                                    "type" : "string",
+                                                    "description" : "Date the plan was started",
+                                                    "format" : "date"
+                                                },
+                                                "end_date" : {
+                                                    "type" : "string",
+                                                    "description" : "Date the plan was completed",
+                                                    "format" : "date"
+                                                },
+                                                "purge" : {
+                                                    "type" : "boolean",
+                                                    "description" : "Flag to indicate if this child in need plan is to be purged from the system. Default value of False. A purge flag set here will remove all data related to the specified child in need plan. All other personal and social care data will remain. Please use the purge attribute in the parent object to completely remove a specific social care episode including all child in need plans",
+                                                    "default" : false
+                                                }
+                                            },
+                                            "required" : [
+                                                "child_in_need_plan_id"
+                                            ],
+                                            "additionalProperties" : false
+                                        }
+                                    },
+                                    "section_47_assessments" : {
+                                        "type" : "array",
+                                        "description" : "Details on Section 47 enquiries and any subsequent Initial Child Protection Conferences carried out to assess the needs of a Child referred to social services",
+                                        "items" : {
+                                            "type" : "object",
+                                            "properties" : {
+                                                "section_47_assessment_id" : {
+                                                    "type" : "string",
+                                                    "description" : "Unique identifier for the Section 47 enquiry",
+                                                    "pattern" : "^[A-Za-z0-9_-]*$",
+                                                    "maxLength" : 36
+                                                },
+                                                "start_date" : {
+                                                    "type" : "string",
+                                                    "description" : "Date the enquiry was started",
+                                                    "format" : "date"
+                                                },
+                                                "icpc_required_flag" : {
+                                                    "type" : "boolean",
+                                                    "description" : "Flag to indicate if an Initial Child Protection Conference was required"
+                                                },
+                                                "icpc_date" : {
+                                                    "type" : "string",
+                                                    "description" : "Date on which the Initial Child Protection Conference was carried out if one was required",
+                                                    "format" : "date"
+                                                },
+                                                "end_date" : {
+                                                    "type" : "string",
+                                                    "description" : "Date the enquiry was closed. This could be on/after the date of the Initial Child Protection Conference if one was required, or on/after the date on which the decision that a conference was not required.",
+                                                    "format" : "date"
+                                                },
+                                                "purge" : {
+                                                    "type" : "boolean",
+                                                    "description" : "Flag to indicate if this section 47 assessment is to be purged from the system. Default value of False. A purge flag set here will remove all data related to the specified section 47 assessment. All other personal and social care data will remain. Please use the purge attribute in the parent object to completely remove a specific social care episode including all section 47 assessments",
+                                                    "default" : false
+                                                }
+                                            },
+                                            "required" : [
+                                                "section_47_assessment_id"
+                                            ],
+                                            "additionalProperties" : false
+                                        }
+                                    },
+                                    "child_protection_plans" : {
+                                        "type" : "array",
+                                        "description" : "Details on child protection plans arranged to support the needs of a Child referred to social services",
+                                        "items" : {
+                                            "type" : "object",
+                                            "properties" : {
+                                                "child_protection_plan_id" : {
+                                                    "type" : "string",
+                                                    "description" : "Unique identifier for the child protection plan",
+                                                    "pattern" : "^[A-Za-z0-9_-]*$",
+                                                    "maxLength" : 36
+                                                },
+                                                "start_date" : {
+                                                    "type" : "string",
+                                                    "description" : "Date the plan was started",
+                                                    "format" : "date"
+                                                },
+                                                "end_date" : {
+                                                    "type" : "string",
+                                                    "description" : "Date the plan was completed",
+                                                    "format" : "date"
+                                                },
+                                                "purge" : {
+                                                    "type" : "boolean",
+                                                    "description" : "Flag to indicate if this child protection plan is to be purged from the system. Default value of False. A purge flag set here will remove all data related to the specified child protection plan. All other personal and social care data will remain. Please use the purge attribute in the parent object to completely remove a specific social care episode including all child protection plans",
+                                                    "default" : false
+                                                }
+                                            },
+                                            "required" : [
+                                                "child_protection_plan_id"
+                                            ],
+                                            "additionalProperties" : false
+                                        }
+                                    },
+                                    "child_looked_after_placements" : {
+                                        "type" : "array",
+                                        "description" : "Details on child looked after placements. These represent the individual building blocks, often referred to as 'episodes', making up a continous 'period of care'. This is in line with the current SSDA903 collection",
+                                        "items" : {
+                                            "type" : "object",
+                                            "properties" : {
+                                                "child_looked_after_placement_id" : {
+                                                    "type" : "string",
+                                                    "description" : "Unique identifier for the child looked after placement",
+                                                    "pattern" : "^[A-Za-z0-9_-]*$",
+                                                    "maxLength" : 36
+                                                },
+                                                "start_date" : {
+                                                    "type" : "string",
+                                                    "description" : "Date the placement was started",
+                                                    "format" : "date"
+                                                },
+                                                "start_reason" : {
+                                                    "type" : "string",
+                                                    "description" : "Reason the placement was startded, selected from a list of possible codes",
+                                                    "maxLength" : 1
+                                                },
+                                                "placement_type" : {
+                                                    "type" : "string",
+                                                    "description" : "The type of placement the child is on, selected from a list of possible codes",
+                                                    "maxLength" : 2
+                                                },
+                                                "postcode" : {
+                                                    "type": "string",
+                                                    "description" : "The postcode for the location of the placement. This is used to determine the distance from the childs original home.",
+                                                    "maxLength" : 8
+                                                },
+                                                "end_date" : {
+                                                    "type" : "string",
+                                                    "description" : "Date the placement was completed",
+                                                    "format" : "date"
+                                                },
+                                                "end_reason" : {
+                                                    "type" : "string",
+                                                    "description" : "Reason the placement was completed, selected from a list of possible codes",
+                                                    "maxLength" : 3
+                                                },
+                                                "change_reason" : {
+                                                    "type" : "string",
+                                                    "description" : "Reason the placement was changed from a previous placement, selected from a list of possible codes. This is only relevant when there is a previous placement prior to the current one.",
+                                                    "maxLength" : 6
+                                                },
+                                                "purge" : {
+                                                    "type" : "boolean",
+                                                    "description" : "Flag to indicate if this child looked after placement is to be purged from the system. Default value of False. A purge flag set here will remove all data related to the specified child looked after placement. All other personal and social care data will remain. Please use the purge attribute in the parent object to completely remove a specific social care episode including all child looked after placements",
+                                                    "default" : false
+                                                }
+                                            },
+                                            "required" : [
+                                                "child_looked_after_placement_id"
+                                            ],
+                                            "additionalProperties" : false
+                                        }
+                                    },
+                                    "adoption" : {
+                                        "type" : "object",
+                                        "properties" : {
+                                            "initial_decision_date" : {
+                                                "type" : "string",
+                                                "format" : "date"
+                                            },
+                                            "matched_date" : {
+                                                "type" : "string",
+                                                "format" : "date"
+                                            },
+                                            "placed_date" : {
+                                                "type" : "string",
+                                                "format" : "date"
+                                            },
+                                            "purge" : {
+                                                "type" : "boolean",
+                                                "description" : "Flag to indicate if adoption details for this social care episode are to be purged from the system. Default value of False. A purge flag set here will remove all adoption data related to the current social care episode. All other personal and social care data will remain. Please use the purge attribute in the top level object to completely remove a child's record including all social care episodes",
+                                                "default" : false
+                                            }
+                                        },
+                                        "additionalProperties" : false
+                                    },
+                                    "care_leavers" : {
+                                        "type" : "object",
+                                        "properties" : {
+                                            "contact_date" : {
+                                                "type" : "string",
+                                                "format" : "date"
+                                            },
+                                            "activity" : {
+                                                "type" : "string",
+                                                "maxLength" : 2
+                                            },
+                                            "accommodation" : {
+                                                "type" : "string",
+                                                "maxLength" : 1
+                                            },
+                                            "purge" : {
+                                                "type" : "boolean",
+                                                "description" : "Flag to indicate if care leaver details for this social care episode are to be purged from the system. Default value of False. A purge flag set here will remove all care leaver data related to the current social care episode. All other personal and social care data will remain. Please use the purge attribute in the top level object to completely remove a child's record including all social care episodes",
+                                                "default" : false
+                                            }
+                                        },
+                                        "additionalProperties" : false
+                                    },
+                                    "purge" : {
+                                        "type" : "boolean",
+                                        "description" : "Flag to indicate if this social care episode is to be purged from the system. Default value of False. A purge flag set here will remove all data related to the specified social care episode, including all associated assessments and plans. All other personal and social care data will remain. Please use the purge attribute in the parent object to completely remove a child's record including all social care episodes",
+                                        "default" : false
+                                    }
+                                },
+                                "required" : [
+                                    "social_care_episode_id"
+                                ],
+                                "additionalProperties" : false
+                            }
+                        }
+                    },
+                    "required" : [
+                        "la_child_id"
+                    ],
+                    "additionalProperties" : false,
+                    "example" : {
+                        "la_child_id" : "Child1234",
+                        "mis_child_id" : "Supplier-Child-1234",
+                        "child_details" : {
+                            "unique_pupil_number" : "ABC0123456789",
+                            "former_unique_pupil_number" : "DEF0123456789",
+                            "unique_pupil_number_unknown_reason" : "UN1",
+                            "first_name" : "John",
+                            "surname" : "Doe",
+                            "date_of_birth" : "2022-06-14",
+                            "expected_date_of_birth" : "2022-06-14",
+                            "sex" : "M",
+                            "ethnicity" : "WBRI",
+                            "disabilities" : [
+                                "HAND",
+                                "VIS"
+                            ],
+                            "postcode" : "AB12 3DE",
+                            "uasc_flag" : true,
+                            "uasc_end_date" : "2022-06-14",
+                            "purge" : false
+                        },
+                        "health_and_wellbeing" : {
+                            "sdq_assessments" : [{
+                                "date" : "2022-06-14",
+                                "score" : 20
+                            }],
+                            "purge" : false
+                        },
+                        "education_health_care_plans" : [{
+                            "education_health_care_plan_id" : "ABC123456",
+                            "request_received_date" : "2022-06-14",
+                            "request_outcome_date" : "2022-06-14",
+                            "assessment_outcome_date" : "2022-06-14",
+                            "plan_start_date" : "2022-06-14",
+                            "purge" : false
+                        }],
+                        "social_care_episodes" : [{
+                            "social_care_episode_id" : "ABC123456",
+                            "referral_date" : "2022-06-14",
+                            "referral_source" : "1C",
+                            "referral_no_further_action_flag" : false,
+                            "care_worker_details" : [{
+                                "worker_id" : "ABC123",
+                                "start_date" : "2022-06-14",
+                                "end_date" : "2022-06-14"
+                            }],
+                            "child_and_family_assessments" : [{
+                                "child_and_family_assessment_id" : "ABC123456",
+                                "start_date" : "2022-06-14",
+                                "authorisation_date" : "2022-06-14",
+                                "factors" : [
+                                    "1C",
+                                    "4A"
+                                ],
+                                "purge" : false
+                            }],
+                            "child_in_need_plans": [{
+                                "child_in_need_plan_id": "ABC123456",
+                                "start_date": "2022-06-14",
+                                "end_date": "2022-06-14",
+                                "purge" : false
+                            }],
+                            "section_47_assessments": [{
+                                "section_47_assessment_id": "ABC123456",
+                                "start_date": "2022-06-14",
+                                "icpc_required_flag": true,
+                                "icpc_date": "2022-06-14",
+                                "end_date": "2022-06-14",
+                                "purge" : false
+                            }],
+                            "child_protection_plans": [{
+                                "child_protection_plan_id": "ABC123456",
+                                "start_date": "2022-06-14",
+                                "end_date": "2022-06-14",
+                                "purge" : false
+                            }],
+                            "child_looked_after_placements": [{
+                                "child_looked_after_placement_id": "ABC123456",
+                                "start_date": "2022-06-14",
+                                "start_reason": "S",
+                                "placement_type": "K1",
+                                "postcode": "AB12 3DE",
+                                "end_date": "2022-06-14",
+                                "end_reason": "E3",
+                                "change_reason": "CHILD",
+                                "purge" : false
+                            }],
+                            "adoption" : {
+                                "initial_decision_date" : "2022-06-14",
+                                "matched_date" : "2022-06-14",
+                                "placed_date" : "2022-06-14",
+                                "purge" : false
+                            },
+                            "care_leavers" : {
+                                "contact_date" : "2022-06-14",
+                                "activity" : "F2",
+                                "accommodation" : "D",
+                                "purge" : false
+                            },
+                            "closure_date": "2022-06-14",
+                            "closure_reason": "RC7",
+                            "purge" : false
+                        }],
+                        "purge" : false
+                    }
+                },
+                "maxItems" : 100
+            },
+            "Receipt" : {
+                "type" : "string",
+                "format" : "uuid"
+            }
+        }
+    }
+}
