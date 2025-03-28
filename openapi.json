@@ -3,7 +3,7 @@
     "info" : {
         "title" : "DfE CSC API",
         "description" : "API for the collection of Child Social Care data",
-        "version" : "0.7.0"
+        "version" : "0.8.0"
     },
     "servers" : [
         {
@@ -58,16 +58,16 @@
             },
             "parameters" : [
                 {
-                  "name": "la_code",
-                  "in": "path",
-                  "description": "3 digit Local Authority Code as known by the DfE",
-                  "required": true,
-                  "schema": {
-                    "type": "integer",
-                    "maximum" : 999
-                  }
+                    "name": "la_code",
+                    "in": "path",
+                    "description": "3 digit Local Authority Code as known by the DfE",
+                    "required": true,
+                    "schema": {
+                        "type": "integer",
+                        "maximum" : 999
+                    }
                 }
-              ]
+            ]
         }
     },
     "components" : {
@@ -204,50 +204,6 @@
                                 }
                             },
                             "additionalProperties" : false
-                        },
-                        "education_health_care_plans" : {
-                            "type" : "array",
-                            "description" : "Details on requests for Education, Health and Care (EHC) plans. The details within this section align closely with the current annual special educational needs survey (person level SEN2 return).",
-                            "items" : {
-                                "type" : "object",
-                                "properties" : {
-                                    "education_health_care_plan_id" : {
-                                        "type" : "string",
-                                        "description" : "Unique ID associated with the Educational, Health and Care plan. This ID should be consistent through all stages of the process, from initial request through to the issued plan.",
-                                        "pattern" : "^[A-Za-z0-9_-]*$",
-                                        "maxLength" : 36
-                                    },
-                                    "request_received_date" : {
-                                        "type" : "string",
-                                        "description" : "Date the request for an EHC needs assessment was received.",
-                                        "format" : "date"
-                                    },
-                                    "request_outcome_date" : {
-                                        "type" : "string",
-                                        "description" : "Date the parent or young person was informed of the decision about whether the local authority agrees to the request for an assessment.",
-                                        "format" : "date"
-                                    },
-                                    "assessment_outcome_date" : {
-                                        "type" : "string",
-                                        "description" : "Either the date on which the final EHC plan was issued, or the date on which the parent or young person was notified of decision not to issue a plan",
-                                        "format" : "date"
-                                    },
-                                    "plan_start_date" : {
-                                        "type" : "string",
-                                        "description" : "Date the child or young person's EHC plan first started.",
-                                        "format" : "date"
-                                    },
-                                    "purge" : {
-                                        "type" : "boolean",
-                                        "description" : "Flag to indicate if this Educational, Health and Care plan is to be purged from the system. Default value of False. A purge flag set here will remove all data related to the specified Educatonal, Health and Care plan. All other personal and social care data will remain. Please use the purge attribute in the parent object to completely remove a child's record including all Education, Health and Care plans",
-                                        "default" : false
-                                    }
-                                },
-                                "required" : [
-                                    "education_health_care_plan_id"
-                                ],
-                                "additionalProperties" : false
-                            }
                         },
                         "social_care_episodes" : {
                             "type" : "array",
@@ -618,14 +574,6 @@
                             }],
                             "purge" : false
                         },
-                        "education_health_care_plans" : [{
-                            "education_health_care_plan_id" : "ABC123456",
-                            "request_received_date" : "2022-06-14",
-                            "request_outcome_date" : "2022-06-14",
-                            "assessment_outcome_date" : "2022-06-14",
-                            "plan_start_date" : "2022-06-14",
-                            "purge" : false
-                        }],
                         "social_care_episodes" : [{
                             "social_care_episode_id" : "ABC123456",
                             "referral_date" : "2022-06-14",
