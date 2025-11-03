@@ -115,7 +115,7 @@
                                 "unique_pupil_number_unknown_reason" : {
                                     "type" : "string",
                                     "description" : "Optional reason as to why a Unique Pupil Number (UPN) can not be provided for this child, selected from a list of possible codes",
-                                    "maxLength" : 3
+                                    "maxLength" : 4
                                 },
                                 "first_name" : {
                                     "type" : "string",
