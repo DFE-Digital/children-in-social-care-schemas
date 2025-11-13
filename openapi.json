@@ -3,7 +3,7 @@
     "info" : {
         "title" : "DfE CSC API",
         "description" : "API for the collection of Child Social Care data",
-        "version" : "0.8.0"
+        "version" : "0.8.1"
     },
     "servers" : [
         {
