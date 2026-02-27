@@ -3,7 +3,7 @@
     "info" : {
         "title" : "DfE CSC API",
         "description" : "API for the collection of Child Social Care data",
-        "version" : "0.8.1"
+        "version" : "1.0.0"
     },
     "servers" : [
         {
@@ -448,7 +448,7 @@
                                                 "placement_type" : {
                                                     "type" : "string",
                                                     "description" : "The type of placement the child is on, selected from a list of possible codes",
-                                                    "maxLength" : 2
+                                                    "maxLength" : 3
                                                 },
                                                 "postcode" : {
                                                     "type": "string",
