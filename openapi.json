@@ -3,7 +3,7 @@
     "info" : {
         "title" : "DfE CSC API",
         "description" : "API for the collection of Child Social Care data",
-        "version" : "1.0.0"
+        "version" : "1.0.1"
     },
     "servers" : [
         {
@@ -82,8 +82,8 @@
                         "la_child_id" : {
                             "type" : "string",
                             "description" : "Unique child identifier as held by the Local Authority. This is used as the core identifier for a child.",
-                            "pattern" : "^[A-Za-z0-9_-]*$",
-                            "maxLength" : 36
+                            "pattern" : "^[A-Za-z0-9]*$",
+                            "maxLength" : 20
                         },
                         "mis_child_id" : {
                             "type" : "string",
@@ -250,7 +250,7 @@
                                                 "worker_id" : {
                                                     "type" : "string",
                                                     "description" : "ID of the assigned Social Worker. This should be the Social Work England (SWE) number (formerly HCPC code) for all qualified social workers or an alternative unique ID if this is unavailable.",
-                                                    "pattern" : "^[A-Za-z0-9_-]*$",
+                                                    "pattern" : "^[A-Za-z0-9._-]*$",
                                                     "maxLength" : 12
                                                 },
                                                 "start_date" : {
